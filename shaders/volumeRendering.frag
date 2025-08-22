@@ -4,10 +4,10 @@ precision highp float;
 precision highp sampler2D;
 precision highp sampler3D;
 
-uniform sampler2D entryPoints;  // The texture that holds the entry points
-uniform sampler2D exitPoints;   // The texture that holds the exit points
+uniform sampler2D entryPoints;      // The texture that holds the entry points
+uniform sampler2D exitPoints;       // The texture that holds the exit points
 
-uniform sampler3D volume;       // The texture that holds the volume data
+uniform sampler3D volume;           // The texture that holds the volume data
 uniform sampler2D transferFunction; // The texture that holds the transfer function data
                                     // WebGL doesn't like 1D textures, so this is a 2D
                                     // texture that is only 1 pixel high
@@ -58,7 +58,8 @@ vec4 traverseRay(vec3 entryCoord, vec3 exitCoord) {
   // reaching the end of the ray (t >= tEnd) or if our resulting color is so saturated
   // (result.a >= 0.99) that any other samples that would follow would have so little
   // impact as to make the computation unnecessary (called early ray termination)
-  while (t < tEnd && result.a < 0.99) {
+  const float EarlyRayTerminationThreshold = 0.99;
+  while (t < tEnd && result.a < EarlyRayTerminationThreshold) {
     // Compute the current sampling position along the ray
     vec3 sampleCoord = entryCoord + t * rayDirection;
 
@@ -143,17 +144,17 @@ void main() {
   // The values that are checked against here have to be synced with the renderVolume
   if (renderType == RenderTypeVolumeRendering) {
     // Check for an early out. If the entry coordinate is the same as the exit
-    // coordinate then our current pixel is missing the volume, so there is no need for
-    // any ray traversal
+    // coordinate then our current pixel is not intercepting the volume, so there is no
+    // need for any ray traversal
     if (entryCoord == exitCoord) {
       discard;
     }
 
-    // Perform the raycasting using the entry and the exit pos
+    // Perform the raycasting using the entry and the exit positions
     vec4 pixelColor = traverseRay(entryCoord, exitCoord);
 
     // As the raycasting might not return a fully opaque color (for example if the ray
-    // exits the volume without being fully saturated), we can't just assing the color,
+    // exits the volume without being fully saturated), we can't just assign the color,
     // but need to mix (=lerp) it with a fully black background color
     out_color = mix(vec4(0.0, 0.0, 0.0, 1.0), pixelColor, pixelColor.a);
   }
@@ -179,8 +180,8 @@ void main() {
       return;
     }
     // For the rest, render TF with transparency, over a checkerboard pattern
-    float nCheckers = 20.0;
-    vec2 pos = floor(st * nCheckers);
+    float NCheckers = 20.0;
+    vec2 pos = floor(st * NCheckers);
     float patternMask = mod(pos.x + mod(pos.y, 2.0), 2.0);
     vec4 checkerColor = patternMask * vec4(0.7, 0.7, 0.7, 1.0);
     // Blend checkerboard pattern with TF color
@@ -188,7 +189,7 @@ void main() {
   }
   else if (renderType == RenderTypeVolumeSlice) {
     // Take a central slice of the volume and render it to the screen. This is mainly
-    // meant as a control for the next option.
+    // meant as a control for the next option
     float value = texture(volume, vec3(st, 0.5)).r;
     out_color = vec4(value, value, value, 1.0);
   }

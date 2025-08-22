@@ -349,7 +349,8 @@ async function main() {
   //
   async function loadShaderSource(url) {
     const response = await fetch(url);
-    return await response.text();
+    const text = await response.text();
+    return text;
   }
 
   const boundingBoxVertexSource = await loadShaderSource("shaders/boundingBox.vert");
@@ -601,8 +602,7 @@ async function main() {
 
     // Get the step size from the slider and rescale to get into a proper range. Note that
     // the value of the input tag is a string, so we make sure to convert it to a number
-    const nSteps = Number(document.getElementById("numberSteps").value);
-    const stepSize = 1.0 / nSteps;
+    const stepSize = 1.0 / Number(document.getElementById("numberSteps").value);
     const compositing = document.querySelector('input[name="compositing"]:checked').value;
     const renderType = document.querySelector('input[name="debug-output"]:checked').value;
     renderVolume(gl, volumeRenderingProgram, volumeTexture, entryTexture, exitTexture,
