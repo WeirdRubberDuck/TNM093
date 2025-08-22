@@ -577,12 +577,12 @@ async function main() {
     let viewMatrix = mat4.create();
     {
       // Compute the camera location by converting spherical coordinates into cartesian
-      const r = document.getElementById("camera-r").value / 10.0;
-      const phi = document.getElementById("camera-phi").value;
+      const r = Number(document.getElementById("camera-r").value) / 10.0;
+      const phi = Number(document.getElementById("camera-phi").value);
 
       // The values from the sliders are in Degrees, but the trig functions want radians
       const phiRad = phi * Math.PI / 180.0;
-      const theta = document.getElementById("camera-theta").value;
+      const theta = Number(document.getElementById("camera-theta").value);
       const thetaRad = theta * Math.PI / 180.0;
 
       // Conversion from spherical coordinates into cartesian
@@ -599,8 +599,10 @@ async function main() {
     renderBoundingbox(gl, boundingBoxProgram, modelMatrix, viewMatrix, projectionMatrix,
       entryFramebuffer, exitFramebuffer);
 
-    // Get the step size from the slider and rescale to get into a proper range
-    const stepSize = 1.0 / document.getElementById("stepSize").value;
+    // Get the step size from the slider and rescale to get into a proper range. Note that
+    // the value of the input tag is a string, so we make sure to convert it to a number
+    const nSteps = Number(document.getElementById("numberSteps").value);
+    const stepSize = 1.0 / nSteps;
     const compositing = document.querySelector('input[name="compositing"]:checked').value;
     const renderType = document.querySelector('input[name="debug-output"]:checked').value;
     renderVolume(gl, volumeRenderingProgram, volumeTexture, entryTexture, exitTexture,
@@ -652,7 +654,7 @@ function postError(msg) {
   <canvas id="glCanvas" width="640" height="480"></canvas>
   <p>
     Rendering parameters
-    <div>Step size: <input type="range" min="10" max="10000" value="1000" class="slider" id="stepSize" oninput="triggerRendering();"> </div>
+    <div>Steps: <input type="range" min="10" max="10000" value="1000" class="slider" id="numberSteps" oninput="triggerRendering();"> </div>
     <div>
       <div>Compositing method:</div>
       <div><input type="radio" name="compositing" value="ftb" onchange="triggerRendering();" checked>Front-to-back</div>
