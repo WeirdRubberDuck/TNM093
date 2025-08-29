@@ -22,6 +22,16 @@ const int CompositingMethodFrontToBack = 0;
 const int CompositingMethodFirstHitPoint = 1;
 const int CompositingMethodMaximumIntensityProjection = 2;
 
+// Poor man's enum for the render types.  These values should be synchronized with the
+// render function in case any of the numbers change
+const int RenderTypeVolumeRendering = 0;
+const int RenderTypeEntryPoints = 1;
+const int RenderTypeExitPoints = 2;
+const int RenderTypeRayDirection = 3;
+const int RenderTypeTransferFunction = 4;
+const int RenderTypeVolumeSlice = 5;
+const int RenderTypeVolumeSliceWithTransferFunction = 6;
+
 in vec2 st; // This is the texture coordinate of the fragment that we are currently
             // computing. This is used to look up the entry/exit points to compute the
             // direction of the ray
@@ -130,16 +140,6 @@ void main() {
   vec3 entryCoord = texture(entryPoints, st).rgb;
   // Access the exit point texture at our current pixel location to get the exit pos
   vec3 exitCoord = texture(exitPoints, st).rgb;
-
-  // Poor man's enum for the render types.  These values should be synchronized with the
-  // render function in case any of the numbers change
-  const int RenderTypeVolumeRendering = 0;
-  const int RenderTypeEntryPoints = 1;
-  const int RenderTypeExitPoints = 2;
-  const int RenderTypeRayDirection = 3;
-  const int RenderTypeTransferFunction = 4;
-  const int RenderTypeVolumeSlice = 5;
-  const int RenderTypeVolumeSliceWithTransferFunction = 6;
 
   // The values that are checked against here have to be synced with the renderVolume
   if (renderType == RenderTypeVolumeRendering) {
